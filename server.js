@@ -12,12 +12,12 @@ app.use((req, res, next) => {
 });
 
 const PAGES = [
-  { path: '/', label: 'about' },
-  { path: '/publications', label: 'publications' },
-  { path: '/cv', label: 'cv' },
-  { path: '/teaching', label: 'teaching' },
-  { path: '/notes', label: 'notes' },
-  { path: '/research', label: 'research' }
+  { path: '/', label: '>home' },
+  { path: '/publications', label: '>publications' },
+  { path: '/cv', label: '>cv' },
+  { path: '/teaching', label: '>teaching' },
+  { path: '/notes', label: '>notes' },
+  { path: '/research', label: '>research' }
 ];
 
 function renderTemplate({ activePath = '/', bodyHtml = '' }) {
@@ -54,7 +54,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     .hero-title { margin: 0 0 10px; font-size: 40px; line-height: 1.1; }
     .hero-lead { margin: 0; color: var(--muted); font-size: 16px; }
     .profile-wrap { display: grid; place-items: center; }
-    .profile { width: 220px; height: 220px; border-radius: 50%; object-fit: cover; box-shadow: 0 10px 30px rgba(0,0,0,0.35); border: 4px solid var(--panel); }
+    .profile { width: 220px; height: 220px; border-radius: 18px; object-fit: cover; box-shadow: 0 10px 30px rgba(0,0,0,0.35); border: 4px solid var(--panel); }
 
     .section-title { margin: 0 0 12px; font-size: 28px; }
     .section-panel { border: 1px solid var(--border); background: var(--panel); border-radius: 14px; padding: 18px; }
@@ -100,7 +100,7 @@ function renderHome() {
   <main class="page">
     <section class="hero">
       <div>
-        <h1 class="hero-title">Mahatru Guddamsetty</h1>
+        <h1 class="hero-title">&gt; Mahatru Guddamsetty</h1>
         <p class="hero-lead">Welcome to my homepage.</p>
       </div>
       <div class="profile-wrap">
@@ -108,8 +108,8 @@ function renderHome() {
       </div>
     </section>
     <section class="section-panel" style="margin-top: 28px;">
-      <h2 class="section-title">Links</h2>
-      <p class="hero-lead">Health check <a class="nav-link" href="/healthz">/healthz</a></p>
+      <h2 class="section-title">&gt;about me</h2>
+      <p class="hero-lead">Hi! My name is Mahatru Guddamsetty, and I currently study electrical engineering as a sophomore at University of California, Riverside (UCR). I'm a dedicated person, and always open to any internship or research opportunity. I aim to pursue future technical electives and research within VLSI design, embedded systems, and quantum computing.</p>
     </section>
   </main>`;
   return renderTemplate({ activePath: '/', bodyHtml });
