@@ -49,7 +49,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     .toggle-btn { margin-left: auto; display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); color: var(--fg); cursor: pointer; }
     .toggle-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-    .page { max-width: 1024px; margin: 0 auto; padding: 32px 20px 56px; }
+    .page { position: relative; z-index: 1; max-width: 1024px; margin: 0 auto; padding: 32px 20px 56px; }
     .hero { display: grid; grid-template-columns: 1.25fr 1fr; align-items: center; gap: 28px; }
     .hero-title { margin: 0 0 10px; font-size: 40px; line-height: 1.1; }
     .hero-lead { margin: 0; color: var(--muted); font-size: 16px; }
@@ -58,6 +58,9 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
 
     .section-title { margin: 0 0 12px; font-size: 28px; }
     .section-panel { border: 1px solid var(--border); background: var(--panel); border-radius: 14px; padding: 18px; }
+
+    /* Background bokeh for home */
+    .bokeh-canvas { position: fixed; inset: -10% -10% -10% -10%; z-index: 0; pointer-events: none; filter: blur(12px); opacity: 0.45; }
 
     /* Custom cursor */
     .cursor-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 2147483647; }
@@ -95,7 +98,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
       });
     })();
 
-    // Enhanced glossy chrome cursor with smoother trail and click pulse
+    // Enhanced glossy chrome cursor with smoother trail, faster tracking, click pulse, and persistent position
     (function(){
       var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var coarse = window.matchMedia('(pointer: coarse)').matches;
@@ -119,14 +122,19 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
       resize();
       window.addEventListener('resize', resize, { passive: true });
 
-      var mouseX = -100, mouseY = -100;
-      var currX = mouseX, currY = mouseY;
-      var trail = [];
-      var maxTrail = 28; // longer for smoothness
-      var baseRadius = 12; // slightly larger
-      var follow = 0.22; // easing towards the mouse
+      var stored = null;
+      try { stored = JSON.parse(sessionStorage.getItem('cursor_pos') || 'null'); } catch (_) {}
+      var mouseX = stored ? stored.x : null;
+      var mouseY = stored ? stored.y : null;
+      var currX = mouseX ?? -100, currY = mouseY ?? -100;
+      var active = mouseX != null && mouseY != null;
 
-      var clickT = 1; // 1 = idle; animates 0->1 on click
+      var trail = [];
+      var maxTrail = 26; // a bit shorter for responsiveness
+      var baseRadius = 12;
+      var follow = 0.35; // faster response
+
+      var clickT = 1;
       var ripples = [];
       var last = performance.now();
 
@@ -148,17 +156,14 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.fill();
-        // specular highlight
-        var rx = r * 0.55, ry = r * 0.55;
         var hx = x - r * 0.35, hy = y - r * 0.35;
         var grad = ctx.createRadialGradient(hx, hy, r*0.05, hx, hy, r*0.8);
         grad.addColorStop(0, 'rgba(255,255,255,0.9)');
         grad.addColorStop(1, 'rgba(255,255,255,0)');
         ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.ellipse(hx, hy, rx*0.45, ry*0.35, -0.6, 0, Math.PI * 2);
+        ctx.ellipse(hx, hy, r*0.25, r*0.18, -0.6, 0, Math.PI * 2);
         ctx.fill();
-        // subtle rim
         ctx.lineWidth = Math.max(1, r * 0.12);
         ctx.strokeStyle = 'rgba(180,200,255,0.35)';
         ctx.beginPath();
@@ -168,37 +173,34 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
       }
 
       function frame(now){
-        var dt = Math.min(0.05, (now - last) / 1000);
-        last = now;
-
+        var dt = Math.min(0.05, (now - (frame.t || now)) / 1000);
+        frame.t = now;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (!active) { requestAnimationFrame(frame); return; }
 
-        // ease towards mouse
         currX += (mouseX - currX) * follow;
         currY += (mouseY - currY) * follow;
         trail.unshift({ x: currX, y: currY });
         if (trail.length > maxTrail) trail.pop();
 
         if (clickT < 1) clickT = Math.min(1, clickT + dt * 3.2);
-        var headScale = 1 + 0.5 * Math.sin(clickT * Math.PI); // expand -> shrink
+        var headScale = 1 + 0.5 * Math.sin(clickT * Math.PI);
 
-        // draw trail tail -> head for layering, with smoother blur
         for (var i = trail.length - 1; i >= 0; i--) {
           var p = trail[i];
           var t = i / (maxTrail - 1);
           var r = baseRadius * (1.05 - t * 0.6) * (i === 0 ? headScale : 1);
-          var a = 0.32 * (1 - t);
-          var blur = 8 * t; // more blur on the tail
+          var a = 0.34 * (1 - t);
+          var blur = 9 * t;
           glossyDot(p.x, p.y, r, a, blur);
         }
 
-        // ripples
         for (var k = ripples.length - 1; k >= 0; k--) {
           var rp = ripples[k];
-          rp.t += dt * 2.2;
+          rp.t += dt * 2.4;
           var alpha = 0.35 * (1 - rp.t);
           if (alpha <= 0) { ripples.splice(k, 1); continue; }
-          var rr = baseRadius * (1 + rp.t * 6);
+          var rr = baseRadius * (1 + rp.t * 6.5);
           ctx.save();
           ctx.globalCompositeOperation = 'lighter';
           ctx.strokeStyle = 'rgba(200,220,255,' + alpha + ')';
@@ -213,19 +215,71 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
         requestAnimationFrame(frame);
       }
 
+      function store(){ if (mouseX != null) try { sessionStorage.setItem('cursor_pos', JSON.stringify({ x: mouseX, y: mouseY })); } catch(_){} }
+
       window.addEventListener('mousemove', function(e){
-        mouseX = e.clientX; mouseY = e.clientY;
+        mouseX = e.clientX; mouseY = e.clientY; active = true; store();
       }, { passive: true });
-      window.addEventListener('mouseleave', function(){
-        mouseX = -100; mouseY = -100; trail.length = 0;
+      window.addEventListener('mouseenter', function(e){
+        mouseX = e.clientX; mouseY = e.clientY; active = true; store();
       });
-      window.addEventListener('mousedown', function(e){
-        if (e.button !== 0) return;
-        clickT = 0; // start pulse
-        ripples.push({ x: mouseX, y: mouseY, t: 0 });
-      });
+      window.addEventListener('mouseleave', function(){ active = false; trail.length = 0; });
+      window.addEventListener('mousedown', function(e){ if (e.button === 0) { clickT = 0; ripples.push({ x: mouseX, y: mouseY, t: 0 }); } });
+      window.addEventListener('beforeunload', store);
+      document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'hidden') store(); });
 
       requestAnimationFrame(frame);
+    })();
+
+    // Home-only animated bokeh background
+    (function(){
+      var c = document.getElementById('bokeh');
+      if (!c) return;
+      var ctx = c.getContext('2d');
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      function resize(){
+        var w = window.innerWidth, h = window.innerHeight;
+        c.width = Math.floor(w * dpr);
+        c.height = Math.floor(h * dpr);
+        c.style.width = w + 'px';
+        c.style.height = h + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      resize();
+      window.addEventListener('resize', resize, { passive: true });
+
+      var blobs = [];
+      var COLORS = ['#7dd3fc','#93c5fd','#a5b4fc','#c4b5fd','#67e8f9'];
+      for (var i=0;i<16;i++) {
+        blobs.push({
+          x: Math.random()*window.innerWidth,
+          y: Math.random()*window.innerHeight,
+          r: 120 + Math.random()*140,
+          vx: (Math.random()*2-1) * 0.2,
+          vy: (Math.random()*2-1) * 0.2,
+          c: COLORS[i % COLORS.length]
+        });
+      }
+
+      function draw(){
+        ctx.clearRect(0,0,c.width,c.height);
+        ctx.globalCompositeOperation = 'lighter';
+        for (var i=0;i<blobs.length;i++){
+          var b = blobs[i];
+          b.x += b.vx; b.y += b.vy;
+          if (b.x < -200 || b.x > window.innerWidth + 200) b.vx *= -1;
+          if (b.y < -200 || b.y > window.innerHeight + 200) b.vy *= -1;
+          var g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+          g.addColorStop(0, b.c + 'cc');
+          g.addColorStop(1, b.c + '00');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+          ctx.fill();
+        }
+        requestAnimationFrame(draw);
+      }
+      requestAnimationFrame(draw);
     })();
   </script>
 </body>
@@ -234,10 +288,11 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
 
 function renderHome() {
   const bodyHtml = `
+  <canvas id="bokeh" class="bokeh-canvas"></canvas>
   <main class="page">
     <section class="hero">
       <div>
-        <h1 class="hero-title">Mahatru Guddamsetty</h1>
+        <h1 class="hero-title">&gt;MAHATRU GUDDAMSETTY</h1>
         <p class="hero-lead">Welcome to my homepage.</p>
       </div>
       <div class="profile-wrap">
