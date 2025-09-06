@@ -95,11 +95,11 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
       });
     })();
 
-    // Custom glossy white cursor with smooth trail
+    // Enhanced glossy chrome cursor with smoother trail and click pulse
     (function(){
       var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var coarse = window.matchMedia('(pointer: coarse)').matches;
-      if (reduce || coarse) return; // Respect user preferences and touch devices
+      if (reduce || coarse) return;
 
       var canvas = document.createElement('canvas');
       canvas.className = 'cursor-canvas';
@@ -119,41 +119,97 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
       resize();
       window.addEventListener('resize', resize, { passive: true });
 
-      var mouseX = -100, mouseY = -100; // start offscreen
+      var mouseX = -100, mouseY = -100;
       var currX = mouseX, currY = mouseY;
       var trail = [];
-      var maxTrail = 18;
-      var baseRadius = 9; // size of the dot
+      var maxTrail = 28; // longer for smoothness
+      var baseRadius = 12; // slightly larger
+      var follow = 0.22; // easing towards the mouse
 
-      function glossyDot(x, y, r, a){
+      var clickT = 1; // 1 = idle; animates 0->1 on click
+      var ripples = [];
+      var last = performance.now();
+
+      function chromeGrad(x, y, r){
+        var g = ctx.createRadialGradient(x - r*0.35, y - r*0.35, r*0.1, x, y, r);
+        g.addColorStop(0.0, 'rgba(255,255,255,1)');
+        g.addColorStop(0.35, 'rgba(240,248,255,0.95)');
+        g.addColorStop(0.7, 'rgba(200,220,255,0.55)');
+        g.addColorStop(1.0, 'rgba(170,190,235,0)');
+        return g;
+      }
+
+      function glossyDot(x, y, r, a, blur){
         ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        if (blur > 0) ctx.filter = 'blur(' + blur + 'px)';
         ctx.globalAlpha = a;
-        var grad = ctx.createRadialGradient(x - r*0.35, y - r*0.35, r*0.1, x, y, r);
-        grad.addColorStop(0, 'rgba(255,255,255,1)');
-        grad.addColorStop(0.55, 'rgba(255,255,255,0.8)');
-        grad.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = grad;
+        ctx.fillStyle = chromeGrad(x, y, r);
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.fill();
+        // specular highlight
+        var rx = r * 0.55, ry = r * 0.55;
+        var hx = x - r * 0.35, hy = y - r * 0.35;
+        var grad = ctx.createRadialGradient(hx, hy, r*0.05, hx, hy, r*0.8);
+        grad.addColorStop(0, 'rgba(255,255,255,0.9)');
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.ellipse(hx, hy, rx*0.45, ry*0.35, -0.6, 0, Math.PI * 2);
+        ctx.fill();
+        // subtle rim
+        ctx.lineWidth = Math.max(1, r * 0.12);
+        ctx.strokeStyle = 'rgba(180,200,255,0.35)';
+        ctx.beginPath();
+        ctx.arc(x, y, r - ctx.lineWidth * 0.5, 0, Math.PI * 2);
+        ctx.stroke();
         ctx.restore();
       }
 
-      function frame(){
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // coords already scaled via setTransform
+      function frame(now){
+        var dt = Math.min(0.05, (now - last) / 1000);
+        last = now;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         // ease towards mouse
-        currX += (mouseX - currX) * 0.2;
-        currY += (mouseY - currY) * 0.2;
+        currX += (mouseX - currX) * follow;
+        currY += (mouseY - currY) * follow;
         trail.unshift({ x: currX, y: currY });
         if (trail.length > maxTrail) trail.pop();
-        // draw from tail to head
+
+        if (clickT < 1) clickT = Math.min(1, clickT + dt * 3.2);
+        var headScale = 1 + 0.5 * Math.sin(clickT * Math.PI); // expand -> shrink
+
+        // draw trail tail -> head for layering, with smoother blur
         for (var i = trail.length - 1; i >= 0; i--) {
           var p = trail[i];
           var t = i / (maxTrail - 1);
-          var r = baseRadius * (1 - t * 0.5);
-          var a = 0.28 * (1 - t);
-          glossyDot(p.x, p.y, r, a);
+          var r = baseRadius * (1.05 - t * 0.6) * (i === 0 ? headScale : 1);
+          var a = 0.32 * (1 - t);
+          var blur = 8 * t; // more blur on the tail
+          glossyDot(p.x, p.y, r, a, blur);
         }
+
+        // ripples
+        for (var k = ripples.length - 1; k >= 0; k--) {
+          var rp = ripples[k];
+          rp.t += dt * 2.2;
+          var alpha = 0.35 * (1 - rp.t);
+          if (alpha <= 0) { ripples.splice(k, 1); continue; }
+          var rr = baseRadius * (1 + rp.t * 6);
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.strokeStyle = 'rgba(200,220,255,' + alpha + ')';
+          ctx.lineWidth = 2;
+          ctx.filter = 'blur(1px)';
+          ctx.beginPath();
+          ctx.arc(rp.x, rp.y, rr, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
         requestAnimationFrame(frame);
       }
 
@@ -162,6 +218,11 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
       }, { passive: true });
       window.addEventListener('mouseleave', function(){
         mouseX = -100; mouseY = -100; trail.length = 0;
+      });
+      window.addEventListener('mousedown', function(e){
+        if (e.button !== 0) return;
+        clickT = 0; // start pulse
+        ripples.push({ x: mouseX, y: mouseY, t: 0 });
       });
 
       requestAnimationFrame(frame);
