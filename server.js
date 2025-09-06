@@ -59,6 +59,10 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     .section-title { margin: 0 0 12px; font-size: 28px; }
     .section-panel { border: 1px solid var(--border); background: var(--panel); border-radius: 14px; padding: 18px; }
 
+    /* Custom cursor */
+    .cursor-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 2147483647; }
+    body.hide-native-cursor, body.hide-native-cursor * { cursor: none !important; }
+
     @media (max-width: 860px) {
       .hero { grid-template-columns: 1fr; }
       .profile { width: 180px; height: 180px; }
@@ -89,6 +93,78 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
         document.documentElement.setAttribute('data-theme', now);
         localStorage.setItem('theme', now);
       });
+    })();
+
+    // Custom glossy white cursor with smooth trail
+    (function(){
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var coarse = window.matchMedia('(pointer: coarse)').matches;
+      if (reduce || coarse) return; // Respect user preferences and touch devices
+
+      var canvas = document.createElement('canvas');
+      canvas.className = 'cursor-canvas';
+      document.body.appendChild(canvas);
+      document.body.classList.add('hide-native-cursor');
+      var ctx = canvas.getContext('2d');
+
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      function resize(){
+        var w = window.innerWidth, h = window.innerHeight;
+        canvas.width = Math.max(1, Math.floor(w * dpr));
+        canvas.height = Math.max(1, Math.floor(h * dpr));
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      resize();
+      window.addEventListener('resize', resize, { passive: true });
+
+      var mouseX = -100, mouseY = -100; // start offscreen
+      var currX = mouseX, currY = mouseY;
+      var trail = [];
+      var maxTrail = 18;
+      var baseRadius = 9; // size of the dot
+
+      function glossyDot(x, y, r, a){
+        ctx.save();
+        ctx.globalAlpha = a;
+        var grad = ctx.createRadialGradient(x - r*0.35, y - r*0.35, r*0.1, x, y, r);
+        grad.addColorStop(0, 'rgba(255,255,255,1)');
+        grad.addColorStop(0.55, 'rgba(255,255,255,0.8)');
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function frame(){
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // coords already scaled via setTransform
+        // ease towards mouse
+        currX += (mouseX - currX) * 0.2;
+        currY += (mouseY - currY) * 0.2;
+        trail.unshift({ x: currX, y: currY });
+        if (trail.length > maxTrail) trail.pop();
+        // draw from tail to head
+        for (var i = trail.length - 1; i >= 0; i--) {
+          var p = trail[i];
+          var t = i / (maxTrail - 1);
+          var r = baseRadius * (1 - t * 0.5);
+          var a = 0.28 * (1 - t);
+          glossyDot(p.x, p.y, r, a);
+        }
+        requestAnimationFrame(frame);
+      }
+
+      window.addEventListener('mousemove', function(e){
+        mouseX = e.clientX; mouseY = e.clientY;
+      }, { passive: true });
+      window.addEventListener('mouseleave', function(){
+        mouseX = -100; mouseY = -100; trail.length = 0;
+      });
+
+      requestAnimationFrame(frame);
     })();
   </script>
 </body>
