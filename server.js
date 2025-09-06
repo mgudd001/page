@@ -100,7 +100,7 @@ function renderHome() {
   <main class="page">
     <section class="hero">
       <div>
-        <h1 class="hero-title">&gt; Mahatru Guddamsetty</h1>
+        <h1 class="hero-title">Mahatru Guddamsetty</h1>
         <p class="hero-lead">Welcome to my homepage.</p>
       </div>
       <div class="profile-wrap">
