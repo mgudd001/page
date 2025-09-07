@@ -63,6 +63,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
       filter: blur(16px);
       opacity: 1;
     }
+    .box-bokeh { position: absolute; inset: 0; pointer-events: none; filter: blur(20px); opacity: .75; z-index: 0; }
     .cv-list { display: grid; gap: 16px; margin-top: 16px; }
     .cv-item { border: 1px solid var(--border); background: var(--panel); border-radius: 14px; padding: 16px; }
     .cv-header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 8px; }
