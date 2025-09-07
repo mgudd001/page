@@ -363,7 +363,7 @@ function renderCV() {
         </div>
         <ul class="cv-points">
           <li>Grade: 4.00/4.00</li>
-          <li>Courses: CIST004A1 Computer Programming I – Java, CIST005A Computer Programming I – Python</li>
+          <li>CIST004A1 Computer Programming I – Java, CIST005A Computer Programming I – Python</li>
         </ul>
       </section>
 
@@ -373,7 +373,7 @@ function renderCV() {
           <div class="cv-dates">Jul 2025</div>
         </div>
         <ul class="cv-points">
-          <li>Courses: CS 21002 / CS 29002 Switching Circuits and Logic Design and Laboratory</li>
+          <li>CS 21002 / CS 29002 Switching Circuits and Logic Design and Laboratory</li>
         </ul>
       </section>
     </div>
