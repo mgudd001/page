@@ -23,15 +23,14 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
   }).join('');
 
   return `<!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Mahatru Guddamsetty</title>
   <meta name="color-scheme" content="dark light" />
   <style>
-    :root { --bg: #0b1020; --fg: #e6eefc; --muted: #9fb0d9; --accent: #3b82f6; --panel: rgba(255,255,255,0.06); --border: rgba(255,255,255,0.12); }
-    html[data-theme='light'] { --bg: #ffffff; --fg: #0b1020; --muted: #4b5563; --accent: #0f62fe; --panel: rgba(15,98,254,0.05); --border: rgba(0,0,0,0.1); }
+    :root { --bg: #ffffff; --fg: #0b1020; --muted: #4b5563; --accent: #0f62fe; --panel: rgba(15,98,254,0.05); --border: rgba(0,0,0,0.1); }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; background: var(--bg); color: var(--fg); }
 
@@ -56,6 +55,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     .section-title { margin: 0 0 12px; font-size: 28px; }
     .section-panel { border: 1px solid var(--border); background: var(--panel); border-radius: 14px; padding: 18px; }
     .about-panel { margin-top: 28px; }
+    .about-panel:hover { background: var(--panel); border-color: var(--border); backdrop-filter: blur(8px) saturate(1.05); -webkit-backdrop-filter: blur(8px) saturate(1.05); box-shadow: 0 8px 24px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.06); }
     .glass-follow { position: relative; overflow: hidden; backdrop-filter: blur(12px) saturate(1.15); -webkit-backdrop-filter: blur(12px) saturate(1.15); background: color-mix(in oklab, var(--panel) 92%, transparent); }
     .glow-edge::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.7), 0 0 18px rgba(255,255,255,0.25), 0 0 36px rgba(255,255,255,0.18); }
     .glass-follow::before { content: ""; position: absolute; inset: -40%; background: radial-gradient(140px 140px at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.20), rgba(255,255,255,0) 60%); opacity: 0; transition: opacity .25s ease; mix-blend-mode: screen; pointer-events: none; }
@@ -65,7 +65,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     .primary-nav .nav-link:hover::before { opacity: 1; }
 
     /* Background bokeh for home */
-    .bokeh-canvas { display: none !important; }
+    .bokeh-canvas { position: fixed; inset: -200px; z-index: 0; pointer-events: none; filter: blur(22px); opacity: 0.5; }
 
     .type-fade-letter { opacity: 0; animation: type-fade .28s ease-out forwards; }
     @keyframes type-fade { from { opacity: 0; } to { opacity: 1; } }
@@ -90,23 +90,11 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
         ${navLinks}
       </nav>
       <div class="spacer"></div>
-      <button id="theme-toggle" class="toggle-btn" aria-label="Toggle color theme" title="Toggle light/dark">🌗</button>
     </div>
   </header>
+  <canvas id="bokeh" class="bokeh-canvas"></canvas>
   ${bodyHtml}
   <script>
-    (function() {
-      var saved = localStorage.getItem('theme');
-      var prefers = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-      var current = saved || prefers;
-      document.documentElement.setAttribute('data-theme', current);
-      var btn = document.getElementById('theme-toggle');
-      btn.addEventListener('click', function(){
-        var now = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', now);
-        localStorage.setItem('theme', now);
-      });
-    })();
 
     // Enable CSS custom cursor on non-touch and non-reduced-motion
     (function(){
@@ -202,6 +190,58 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
       var els = document.querySelectorAll('.glass-follow, .primary-nav .nav-link');
       els.forEach(attach);
     })();
+
+    // Bokeh glowy background across site (pink, orange, red, white)
+    (function(){
+      var c = document.getElementById('bokeh');
+      if (!c) return;
+      var ctx = c.getContext('2d');
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var pad = 220;
+      function resize(){
+        var w = window.innerWidth, h = window.innerHeight;
+        c.width = Math.floor((w + pad*2) * dpr);
+        c.height = Math.floor((h + pad*2) * dpr);
+        c.style.width = w + 'px';
+        c.style.height = h + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, -pad*dpr, -pad*dpr);
+      }
+      resize();
+      window.addEventListener('resize', resize, { passive: true });
+
+      var blobs = [];
+      var COLORS = ['#ff7ab3', '#ff9a3c', '#ff4d4d', '#ffffff'];
+      for (var i=0;i<18;i++){
+        blobs.push({
+          x: Math.random()* (window.innerWidth + pad*2) - pad,
+          y: Math.random()* (window.innerHeight + pad*2) - pad,
+          r: 110 + Math.random()*160,
+          vx: (Math.random()*2-1) * 0.28,
+          vy: (Math.random()*2-1) * 0.28,
+          c: COLORS[i % COLORS.length]
+        });
+      }
+
+      function draw(){
+        ctx.clearRect(-pad,-pad, window.innerWidth + pad*2, window.innerHeight + pad*2);
+        ctx.globalCompositeOperation = 'lighter';
+        for (var i=0;i<blobs.length;i++){
+          var b = blobs[i];
+          b.x += b.vx; b.y += b.vy;
+          if (b.x < -pad-250 || b.x > window.innerWidth + pad + 250) b.vx *= -1;
+          if (b.y < -pad-250 || b.y > window.innerHeight + pad + 250) b.vy *= -1;
+          var g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+          g.addColorStop(0, b.c + 'e6');
+          g.addColorStop(1, b.c + '00');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+          ctx.fill();
+        }
+        requestAnimationFrame(draw);
+      }
+      requestAnimationFrame(draw);
+    })();
   </script>
 </body>
 </html>`;
@@ -220,7 +260,7 @@ function renderHome() {
           <img class="profile" alt="Portrait of Mahatru Guddamsetty" src="https://cdn.builder.io/api/v1/image/assets%2F166dddead05c4bf08f1c0443c8d59ac8%2F666a25e13e0347d5a4143974ab722c13?format=webp&width=800" />
         </div>
       </section>
-      <section class="section-panel glass-follow glow-edge about-panel">
+      <section class="section-panel glow-edge about-panel">
         <h2 class="section-title"><span class="type-text" data-type-text=">about me">&gt;about me</span></h2>
         <p class="hero-lead">Hi! My name is Mahatru Guddamsetty, and I currently study electrical engineering as a sophomore at University of California, Riverside (UCR). I'm a dedicated person, and always open to any internship or research opportunity. I aim to pursue future technical electives and research within VLSI design, embedded systems, and quantum computing.</p>
       </section>
