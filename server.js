@@ -13,11 +13,7 @@ app.use((req, res, next) => {
 
 const PAGES = [
   { path: '/', label: '>home' },
-  { path: '/publications', label: '>publications' },
-  { path: '/cv', label: '>cv' },
-  { path: '/teaching', label: '>teaching' },
-  { path: '/notes', label: '>notes' },
-  { path: '/research', label: '>research' }
+  { path: '/cv', label: '>cv' }
 ];
 
 function renderTemplate({ activePath = '/', bodyHtml = '' }) {
@@ -59,9 +55,17 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
 
     .section-title { margin: 0 0 12px; font-size: 28px; }
     .section-panel { border: 1px solid var(--border); background: var(--panel); border-radius: 14px; padding: 18px; }
+    .about-panel { margin-top: 28px; }
+    .glass-follow { position: relative; overflow: hidden; backdrop-filter: blur(12px) saturate(1.15); -webkit-backdrop-filter: blur(12px) saturate(1.15); background: color-mix(in oklab, var(--panel) 92%, transparent); }
+    .glow-edge::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.7), 0 0 18px rgba(255,255,255,0.25), 0 0 36px rgba(255,255,255,0.18); }
+    .glass-follow::before { content: ""; position: absolute; inset: -40%; background: radial-gradient(140px 140px at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.20), rgba(255,255,255,0) 60%); opacity: 0; transition: opacity .25s ease; mix-blend-mode: screen; pointer-events: none; }
+    .glass-follow:hover::before { opacity: 1; }
+    .primary-nav .nav-link { position: relative; overflow: hidden; }
+    .primary-nav .nav-link::before { content: ""; position: absolute; inset: -40%; background: radial-gradient(80px 80px at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.2), rgba(255,255,255,0) 60%); opacity: 0; transition: opacity .25s ease; pointer-events: none; mix-blend-mode: screen; }
+    .primary-nav .nav-link:hover::before { opacity: 1; }
 
     /* Background bokeh for home */
-    .bokeh-canvas { position: fixed; inset: -160px; z-index: 0; pointer-events: none; filter: blur(20px); opacity: 0.55; }
+    .bokeh-canvas { display: none !important; }
 
     .type-fade-letter { opacity: 0; animation: type-fade .28s ease-out forwards; }
     @keyframes type-fade { from { opacity: 0; } to { opacity: 1; } }
@@ -182,56 +186,21 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
       }
     })();
 
-    // Home-only animated bokeh background with overscan padding so it extends beyond edges
+    // Liquid follow highlight for glass panels and nav links
     (function(){
-      var c = document.getElementById('bokeh');
-      if (!c) return;
-      var ctx = c.getContext('2d');
-      var dpr = Math.min(window.devicePixelRatio || 1, 2);
-      var pad = 200; // overscan to avoid right/bottom cutoff under blur
-      function resize(){
-        var w = window.innerWidth, h = window.innerHeight;
-        c.width = Math.floor((w + pad*2) * dpr);
-        c.height = Math.floor((h + pad*2) * dpr);
-        c.style.width = w + 'px';
-        c.style.height = h + 'px';
-        ctx.setTransform(dpr, 0, 0, dpr, -pad*dpr, -pad*dpr);
-      }
-      resize();
-      window.addEventListener('resize', resize, { passive: true });
-
-      var blobs = [];
-      var COLORS = ['#7dd3fc','#93c5fd','#a5b4fc','#c4b5fd','#67e8f9'];
-      for (var i=0;i<16;i++) {
-        blobs.push({
-          x: Math.random()* (window.innerWidth + pad*2) - pad,
-          y: Math.random()* (window.innerHeight + pad*2) - pad,
-          r: 120 + Math.random()*140,
-          vx: (Math.random()*2-1) * 0.3,
-          vy: (Math.random()*2-1) * 0.3,
-          c: COLORS[i % COLORS.length]
+      function attach(el){
+        el.addEventListener('mousemove', function(e){
+          var r = el.getBoundingClientRect();
+          el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+          el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+        });
+        el.addEventListener('mouseleave', function(){
+          el.style.removeProperty('--mx');
+          el.style.removeProperty('--my');
         });
       }
-
-      function draw(){
-        ctx.clearRect(-pad,-pad, window.innerWidth + pad*2, window.innerHeight + pad*2);
-        ctx.globalCompositeOperation = 'lighter';
-        for (var i=0;i<blobs.length;i++){
-          var b = blobs[i];
-          b.x += b.vx; b.y += b.vy;
-          if (b.x < -pad-200 || b.x > window.innerWidth + pad + 200) b.vx *= -1;
-          if (b.y < -pad-200 || b.y > window.innerHeight + pad + 200) b.vy *= -1;
-          var g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
-          g.addColorStop(0, b.c + 'e6');
-          g.addColorStop(1, b.c + '00');
-          ctx.fillStyle = g;
-          ctx.beginPath();
-          ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
-          ctx.fill();
-        }
-        requestAnimationFrame(draw);
-      }
-      requestAnimationFrame(draw);
+      var els = document.querySelectorAll('.glass-follow, .primary-nav .nav-link');
+      els.forEach(attach);
     })();
   </script>
 </body>
@@ -241,7 +210,6 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
 function renderHome() {
   const bodyHtml = `
   <div class="page-root">
-    <canvas id="bokeh" class="bokeh-canvas"></canvas>
     <main class="page">
       <section class="hero">
         <div>
@@ -252,7 +220,7 @@ function renderHome() {
           <img class="profile" alt="Portrait of Mahatru Guddamsetty" src="https://cdn.builder.io/api/v1/image/assets%2F166dddead05c4bf08f1c0443c8d59ac8%2F666a25e13e0347d5a4143974ab722c13?format=webp&width=800" />
         </div>
       </section>
-      <section class="section-panel" style="margin-top: 28px;">
+      <section class="section-panel glass-follow glow-edge about-panel">
         <h2 class="section-title"><span class="type-text" data-type-text=">about me">&gt;about me</span></h2>
         <p class="hero-lead">Hi! My name is Mahatru Guddamsetty, and I currently study electrical engineering as a sophomore at University of California, Riverside (UCR). I'm a dedicated person, and always open to any internship or research opportunity. I aim to pursue future technical electives and research within VLSI design, embedded systems, and quantum computing.</p>
       </section>
@@ -279,25 +247,13 @@ app.get('/', (req, res) => {
   res.type('html').send(renderHome());
 });
 
-app.get('/publications', (req, res) => {
-  res.type('html').send(renderSimple('>publications', '/publications'));
-});
 
 app.get('/cv', (req, res) => {
   res.type('html').send(renderSimple('>cv', '/cv'));
 });
 
-app.get('/teaching', (req, res) => {
-  res.type('html').send(renderSimple('>teaching', '/teaching'));
-});
 
-app.get('/notes', (req, res) => {
-  res.type('html').send(renderSimple('>notes', '/notes'));
-});
 
-app.get('/research', (req, res) => {
-  res.type('html').send(renderSimple('>research', '/research'));
-});
 
 // 404
 app.use((req, res) => {
