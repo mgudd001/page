@@ -30,7 +30,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
   <title>Mahatru Guddamsetty</title>
   <meta name="color-scheme" content="dark light" />
   <style>
-    :root { --bg: #0b1020; --fg: #e6eefc; --muted: #9fb0d9; --accent: #3b82f6; --panel: rgba(255,255,255,0.06); --border: rgba(255,255,255,0.12); }
+    :root { --bg: #0a0a0a; --fg: #e8eefc; --muted: #a9b8d6; --accent: #3b82f6; --panel: rgba(255,255,255,0.08); --border: rgba(255,255,255,0.16); }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; background: var(--bg); color: var(--fg); }
 
@@ -53,6 +53,23 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     .profile { width: 220px; height: 220px; border-radius: 18px; object-fit: cover; box-shadow: 0 10px 30px rgba(0,0,0,0.35); border: 4px solid var(--panel); }
 
     .section-title { margin: 0 0 12px; font-size: 28px; }
+    .group-header { margin: 28px 0 8px; font-size: 22px; font-weight: 700; color: var(--fg); opacity: 0.9; }
+    /* Per-box subtle glow */
+    .section-panel, .cv-item { position: relative; isolation: isolate; z-index: 1; }
+    .section-panel::before, .cv-item::before { content: ""; position: absolute; z-index: -1; inset: -18px; border-radius: inherit; pointer-events: none; background:
+      radial-gradient(180px 120px at 20% 30%, rgba(255,154,67,0.18), rgba(255,154,67,0) 60%),
+      radial-gradient(160px 140px at 80% 70%, rgba(255,122,179,0.16), rgba(255,122,179,0) 65%),
+      radial-gradient(140px 140px at 50% 50%, rgba(255,255,255,0.10), rgba(255,255,255,0) 60%);
+      filter: blur(22px);
+      opacity: .9;
+    }
+    .cv-list { display: grid; gap: 16px; margin-top: 16px; }
+    .cv-item { border: 1px solid var(--border); background: var(--panel); border-radius: 14px; padding: 16px; }
+    .cv-header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 8px; }
+    .cv-role { font-weight: 700; }
+    .cv-org { font-style: italic; color: var(--muted); }
+    .cv-dates { color: var(--muted); white-space: nowrap; }
+    .cv-points { margin: 8px 0 0; padding-left: 20px; }
     /* CV styles */
     .cv-list { display: grid; gap: 16px; margin-top: 16px; }
     .cv-item { border: 1px solid var(--border); background: var(--panel); border-radius: 14px; padding: 16px; }
@@ -72,7 +89,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     .primary-nav .nav-link:hover::before { opacity: 1; }
 
     /* Background bokeh for home */
-    .bokeh-canvas { position: fixed; inset: -800px; z-index: 0; pointer-events: none; filter: blur(40px); opacity: 0.85; }
+    .bokeh-canvas { position: fixed; inset: -800px; z-index: 0; pointer-events: none; filter: blur(40px); opacity: 0.4; }
 
     .type-fade-letter { opacity: 0; animation: type-fade .28s ease-out forwards; }
     @keyframes type-fade { from { opacity: 0; } to { opacity: 1; } }
@@ -163,6 +180,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
       if (hero) {
         hero.setAttribute('data-type-text', hero.textContent);
         hero.addEventListener('click', function(){ type(hero, hero.getAttribute('data-type-text')); });
+        hero.addEventListener('mouseenter', function(){ type(hero, hero.getAttribute('data-type-text')); });
       }
       var about = document.querySelector('.section-title');
       if (about) {
@@ -280,11 +298,48 @@ function renderCV() {
   const bodyHtml = `
   <main class="page">
     <h1 class="section-title"><span class="type-text" data-type-text=">cv">&gt;cv</span></h1>
+
+    <h2 class="group-header">Education</h2>
+    <div class="cv-list">
+      <section class="cv-item">
+        <div class="cv-header">
+          <div><span class="cv-role">Bachelor of Science – BS, Electrical Engineering</span> • <span class="cv-org">University of California, Riverside</span></div>
+          <div class="cv-dates">2024</div>
+        </div>
+        <ul class="cv-points">
+          <li>Grade: 3.8/4.0</li>
+          <li>Courses: EE 010 - Introduction to Electrical Engineering, EE 016 - Data Analysis for Engineering Applications, EE 020A / MATH 045 - Introduction to Ordinary Differential Equations, EE 020B / MATH 031 - Linear Algebra + MATLAB, EE 030A, EE 030LA - Fundamental Electric Circuits I and Lab, CS 010A - C++ Programming I, CS 010B - C++ Programming II, CS 061 - Machine Organization and Assembly Language Programming, MATH 009B - Calculus II (Integral), MATH 009C - Calculus II (Series, Sequences, Parametrics), MATH 010A - Multivariable Calculus III, MATH 010B - Multivariable Calculus III, PHYS 040A, PHYS 040LA - General Physics I and Lab (Mechanics), PHYS 040B, PHYS 040LB - General Physics II and Lab (Thermodynamics), PHYS 040C, PHYS 040LC - General Physics III and Lab (Electricity and Magnetism), CHEM 001A, CHEM 001LA - General Chemistry I and Lab</li>
+        </ul>
+      </section>
+
+      <section class="cv-item">
+        <div class="cv-header">
+          <div><span class="cv-role">Undergraduate Coursework</span> • <span class="cv-org">West Valley College</span></div>
+          <div class="cv-dates">Aug 2022 – Dec 2022</div>
+        </div>
+        <ul class="cv-points">
+          <li>Grade: 4.0/4.0</li>
+          <li>Courses: CIST004A1 Computer Programming I – Java, CIST005A Computer Programming I – Python</li>
+        </ul>
+      </section>
+
+      <section class="cv-item">
+        <div class="cv-header">
+          <div><span class="cv-role">Switching Circuits and Logic Design</span> • <span class="cv-org">Indian Institute of Technology, Kharagpur</span></div>
+          <div class="cv-dates">Jul 2025</div>
+        </div>
+        <ul class="cv-points">
+          <li>Courses: CS 21002 / CS 29002 Switching Circuits and Logic Design and Laboratory</li>
+        </ul>
+      </section>
+    </div>
+
+    <h2 class="group-header">Experience</h2>
     <div class="cv-list">
       <section class="cv-item">
         <div class="cv-header">
           <div><span class="cv-role">Advanced VLSI Design Trainee</span> • <span class="cv-org">VLSI-G Institute at IIT Kharagpur</span></div>
-          <div class="cv-dates">Jul 2025 – Present · 3 mos</div>
+          <div class="cv-dates">Jul 2025 – Present</div>
         </div>
         <ul class="cv-points">
           <li>Developing register-transfer level designs in Verilog by applying multiple modeling styles (structural, dataflow, behavioral) for digital subsystems.</li>
@@ -299,7 +354,7 @@ function renderCV() {
       <section class="cv-item">
         <div class="cv-header">
           <div><span class="cv-role">Electrical Subsystems Intern</span> • <span class="cv-org">Highlander Racing, University of California, Riverside</span></div>
-          <div class="cv-dates">Jun 2025 – Present · 4 mos</div>
+          <div class="cv-dates">Jun 2025 – Present</div>
         </div>
         <ul class="cv-points">
           <li>Designed and implemented a high-side switch for inductive loads using IRL540N MOSFET and IRS2005 gate driver, ensuring protection with flyback diodes and optimized switching.</li>
@@ -312,7 +367,7 @@ function renderCV() {
       <section class="cv-item">
         <div class="cv-header">
           <div><span class="cv-role">Hardware/Software Intern</span> • <span class="cv-org">UCR VexU Robotics (Ursa Mechanica)</span></div>
-          <div class="cv-dates">Jan 2025 – May 2025 · 5 mos</div>
+          <div class="cv-dates">Jan 2025 – May 2025</div>
         </div>
         <ul class="cv-points">
           <li>Programmed and developed autonomous functions in C++ for real-time navigation, sensor-based object detection, and game-piece manipulation.</li>
@@ -325,7 +380,7 @@ function renderCV() {
       <section class="cv-item">
         <div class="cv-header">
           <div><span class="cv-role">Machine Learning Researcher</span> • <span class="cv-org">Inspirit AI + X</span></div>
-          <div class="cv-dates">Jul 2023 – Aug 2023 · 2 mos</div>
+          <div class="cv-dates">Jul 2023 – Aug 2023</div>
         </div>
         <ul class="cv-points">
           <li>Published research on using machine learning to improve the accuracy of sentiment analysis on e-commerce reviews under mentorship of an MIT CS Graduate on Curieux Academic Journal (Issue #33).</li>
@@ -337,7 +392,7 @@ function renderCV() {
       <section class="cv-item">
         <div class="cv-header">
           <div><span class="cv-role">Mechatronics/Electromechanics Developer</span> • <span class="cv-org">Northwestern University</span></div>
-          <div class="cv-dates">Jul 2023 – Aug 2023 · 2 mos</div>
+          <div class="cv-dates">Jul 2023 – Aug 2023</div>
         </div>
         <ul class="cv-points">
           <li>Built and programmed an autonomous mobile robot with microcontrollers, sensors, actuators, and CAD-designed hardware for movement and block detection.</li>
@@ -349,7 +404,7 @@ function renderCV() {
       <section class="cv-item">
         <div class="cv-header">
           <div><span class="cv-role">Human-Computer Interaction Designer</span> • <span class="cv-org">Stanford University</span></div>
-          <div class="cv-dates">Jun 2023 – Jun 2023 · 1 mo</div>
+          <div class="cv-dates">Jun 2023 – Jun 2023</div>
         </div>
         <ul class="cv-points">
           <li>Wrote multiple papers on HCI topics including user-centered design, prototyping techniques, and usability evaluation.</li>
