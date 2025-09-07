@@ -64,7 +64,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     .primary-nav .nav-link:hover::before { opacity: 1; }
 
     /* Background bokeh for home */
-    .bokeh-canvas { position: fixed; inset: -240px; z-index: 0; pointer-events: none; filter: blur(26px); opacity: 0.72; }
+    .bokeh-canvas { position: fixed; inset: -260px; z-index: 0; pointer-events: none; filter: blur(30px); opacity: 0.85; }
 
     .type-fade-letter { opacity: 0; animation: type-fade .28s ease-out forwards; }
     @keyframes type-fade { from { opacity: 0; } to { opacity: 1; } }
@@ -210,7 +210,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
 
       var blobs = [];
       var COLORS = ['#ff7ab3', '#ff9a3c', '#ff4d4d', '#ffffff'];
-      for (var i=0;i<22;i++){
+      for (var i=0;i<26;i++){
         blobs.push({
           x: Math.random()* (window.innerWidth + pad*2) - pad,
           y: Math.random()* (window.innerHeight + pad*2) - pad,
@@ -230,7 +230,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
           if (b.x < -pad-250 || b.x > window.innerWidth + pad + 250) b.vx *= -1;
           if (b.y < -pad-250 || b.y > window.innerHeight + pad + 250) b.vy *= -1;
           var g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
-          g.addColorStop(0, b.c + 'f2');
+          g.addColorStop(0, b.c + 'ff');
           g.addColorStop(1, b.c + '00');
           ctx.fillStyle = g;
           ctx.beginPath();
