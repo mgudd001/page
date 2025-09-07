@@ -369,7 +369,7 @@ function renderCV() {
 
       <section class="cv-item">
         <div class="cv-header">
-          <div><span class="cv-role">Indian Institute of Technology, Kharagpur</span> • <span class="cv-org">External Undergraduate Coursework</span></div>
+          <div><span class="cv-role">External Coursework</span> • <span class="cv-org">Indian Institute of Technology, Kharagpur</span></div>
           <div class="cv-dates">Jul 2025</div>
         </div>
         <ul class="cv-points">
