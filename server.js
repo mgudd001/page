@@ -57,7 +57,6 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     .about-panel { margin-top: 28px; }
     .about-panel:hover { background: var(--panel); border-color: var(--border); backdrop-filter: blur(8px) saturate(1.05); -webkit-backdrop-filter: blur(8px) saturate(1.05); box-shadow: 0 8px 24px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.06); }
     .glass-follow { position: relative; overflow: hidden; backdrop-filter: blur(12px) saturate(1.15); -webkit-backdrop-filter: blur(12px) saturate(1.15); background: color-mix(in oklab, var(--panel) 92%, transparent); }
-    .glow-edge::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.7), 0 0 18px rgba(255,255,255,0.25), 0 0 36px rgba(255,255,255,0.18); }
     .glass-follow::before { content: ""; position: absolute; inset: -40%; background: radial-gradient(140px 140px at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.20), rgba(255,255,255,0) 60%); opacity: 0; transition: opacity .25s ease; mix-blend-mode: screen; pointer-events: none; }
     .glass-follow:hover::before { opacity: 1; }
     .primary-nav .nav-link { position: relative; overflow: hidden; }
@@ -65,7 +64,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     .primary-nav .nav-link:hover::before { opacity: 1; }
 
     /* Background bokeh for home */
-    .bokeh-canvas { position: fixed; inset: -200px; z-index: 0; pointer-events: none; filter: blur(22px); opacity: 0.5; }
+    .bokeh-canvas { position: fixed; inset: -240px; z-index: 0; pointer-events: none; filter: blur(26px); opacity: 0.72; }
 
     .type-fade-letter { opacity: 0; animation: type-fade .28s ease-out forwards; }
     @keyframes type-fade { from { opacity: 0; } to { opacity: 1; } }
@@ -197,7 +196,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
       if (!c) return;
       var ctx = c.getContext('2d');
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
-      var pad = 220;
+      var pad = 260;
       function resize(){
         var w = window.innerWidth, h = window.innerHeight;
         c.width = Math.floor((w + pad*2) * dpr);
@@ -211,13 +210,13 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
 
       var blobs = [];
       var COLORS = ['#ff7ab3', '#ff9a3c', '#ff4d4d', '#ffffff'];
-      for (var i=0;i<18;i++){
+      for (var i=0;i<22;i++){
         blobs.push({
           x: Math.random()* (window.innerWidth + pad*2) - pad,
           y: Math.random()* (window.innerHeight + pad*2) - pad,
-          r: 110 + Math.random()*160,
-          vx: (Math.random()*2-1) * 0.28,
-          vy: (Math.random()*2-1) * 0.28,
+          r: 130 + Math.random()*200,
+          vx: (Math.random()*2-1) * 0.32,
+          vy: (Math.random()*2-1) * 0.32,
           c: COLORS[i % COLORS.length]
         });
       }
@@ -231,7 +230,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
           if (b.x < -pad-250 || b.x > window.innerWidth + pad + 250) b.vx *= -1;
           if (b.y < -pad-250 || b.y > window.innerHeight + pad + 250) b.vy *= -1;
           var g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
-          g.addColorStop(0, b.c + 'e6');
+          g.addColorStop(0, b.c + 'f2');
           g.addColorStop(1, b.c + '00');
           ctx.fillStyle = g;
           ctx.beginPath();
@@ -254,13 +253,13 @@ function renderHome() {
       <section class="hero">
         <div>
           <h1 class="hero-title"><span class="type-text" data-type-text=">MAHATRU GUDDAMSETTY">&gt;MAHATRU GUDDAMSETTY</span></h1>
-          <p class="hero-lead">Welcome to my homepage.</p>
+          <p class="hero-lead">Welcome to my website.</p>
         </div>
         <div class="profile-wrap">
           <img class="profile" alt="Portrait of Mahatru Guddamsetty" src="https://cdn.builder.io/api/v1/image/assets%2F166dddead05c4bf08f1c0443c8d59ac8%2F666a25e13e0347d5a4143974ab722c13?format=webp&width=800" />
         </div>
       </section>
-      <section class="section-panel glow-edge about-panel">
+      <section class="section-panel about-panel">
         <h2 class="section-title"><span class="type-text" data-type-text=">about me">&gt;about me</span></h2>
         <p class="hero-lead">Hi! My name is Mahatru Guddamsetty, and I currently study electrical engineering as a sophomore at University of California, Riverside (UCR). I'm a dedicated person, and always open to any internship or research opportunity. I aim to pursue future technical electives and research within VLSI design, embedded systems, and quantum computing.</p>
       </section>
