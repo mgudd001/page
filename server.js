@@ -38,8 +38,8 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     .site-header { position: sticky; top: 0; z-index: 5; backdrop-filter: saturate(1.2) blur(8px); background: color-mix(in oklab, var(--bg) 88%, transparent); border-bottom: 1px solid var(--border); }
     .header-inner { max-width: 1024px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; gap: 16px; }
     .primary-nav { display: flex; gap: 16px; align-items: center; }
-    .nav-link { color: var(--muted); text-decoration: none; text-transform: lowercase; padding: 6px 8px; border-radius: 8px; transition: color .2s ease, background .2s ease; }
-    .nav-link:hover { color: var(--fg); background: var(--panel); }
+    .nav-link { color: var(--muted); text-decoration: none; text-transform: lowercase; padding: 6px 8px; border-radius: 8px; transition: color .2s ease, background .2s ease, box-shadow .2s ease, border-color .2s ease, backdrop-filter .2s ease; position: relative; overflow: hidden; border: 1px solid transparent; }
+    .nav-link:hover { color: var(--fg); background: var(--panel); border-color: var(--border); backdrop-filter: blur(8px) saturate(1.05); box-shadow: 0 4px 16px rgba(255,255,255,0.06), inset 0 0 0 1px rgba(255,255,255,0.08); }
     .nav-link.is-active { color: var(--fg); font-weight: 600; }
     .spacer { flex: 1 1 auto; }
     .toggle-btn { margin-left: auto; display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); color: var(--fg); cursor: pointer; }
