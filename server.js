@@ -59,11 +59,11 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     .section-panel::before, .cv-item::before { content: ""; position: absolute; z-index: -1; inset: 0; border-radius: inherit; pointer-events: none; background:
       radial-gradient(220px 160px at 18% 28%, rgba(255,154,67,0.28), rgba(255,154,67,0) 62%),
       radial-gradient(200px 160px at 82% 72%, rgba(255,122,179,0.24), rgba(255,122,179,0) 66%),
-      radial-gradient(160px 160px at 50% 50%, rgba(255,255,255,0.16), rgba(255,255,255,0) 60%);
+      radial-gradient(160px 160px at 50% 50%, rgba(255,255,255,0.12), rgba(255,255,255,0) 60%);
       filter: blur(16px);
       opacity: 1;
     }
-    .box-bokeh { position: absolute; inset: 0; pointer-events: none; filter: blur(20px); opacity: .75; z-index: 0; }
+    .box-bokeh { position: absolute; inset: 0; pointer-events: none; filter: blur(18px); opacity: .55; z-index: 0; }
     .cv-list { display: grid; gap: 16px; margin-top: 16px; }
     .cv-item { border: 1px solid var(--border); background: var(--panel); border-radius: 14px; padding: 16px; }
     .cv-header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 8px; }
@@ -237,7 +237,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
         for (var i=0;i<6;i++) blobs.push({ x: Math.random()*el.clientWidth, y: Math.random()*el.clientHeight, r: 60+Math.random()*110, vx:(Math.random()*2-1)*0.28, vy:(Math.random()*2-1)*0.28, c: COLORS[i%COLORS.length] });
         function draw(){
           var w = el.clientWidth, h = el.clientHeight; ctx.clearRect(0,0,w,h); ctx.globalCompositeOperation='lighter';
-          for (var i=0;i<blobs.length;i++){ var b=blobs[i]; b.x+=b.vx; b.y+=b.vy; if (b.x < -40 || b.x > w+40) b.vx*=-1; if (b.y < -40 || b.y > h+40) b.vy*=-1; var g = ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r); g.addColorStop(0, b.c + 'ff'); g.addColorStop(1, b.c + '00'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill(); }
+          for (var i=0;i<blobs.length;i++){ var b=blobs[i]; b.x+=b.vx; b.y+=b.vy; if (b.x < -40 || b.x > w+40) b.vx*=-1; if (b.y < -40 || b.y > h+40) b.vy*=-1; var g = ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r); g.addColorStop(0, b.c + 'cc'); g.addColorStop(1, b.c + '00'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill(); }
           requestAnimationFrame(draw);
         }
         requestAnimationFrame(draw);
@@ -285,7 +285,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
           if (b.x < -pad-350 || b.x > window.innerWidth + pad + 350) b.vx *= -1;
           if (b.y < -pad-350 || b.y > window.innerHeight + pad + 350) b.vy *= -1;
           var g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
-          g.addColorStop(0, b.c + 'ff');
+          g.addColorStop(0, b.c + 'cc');
           g.addColorStop(1, b.c + '00');
           ctx.fillStyle = g;
           ctx.beginPath();
@@ -397,7 +397,7 @@ function renderCV() {
 
       <section class="cv-item">
         <div class="cv-header">
-          <div><span class="cv-role">Electrical Subsystems Intern</span> • <span class="cv-org">Highlander Racing, University of California, Riverside</span></div>
+          <div><span class="cv-role">Electrical Subsystems Intern</span> ��� <span class="cv-org">Highlander Racing, University of California, Riverside</span></div>
           <div class="cv-dates">Jun 2025 → Present</div>
         </div>
         <ul class="cv-points">
