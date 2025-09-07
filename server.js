@@ -305,11 +305,11 @@ function renderCV() {
     <div class="cv-list">
       <section class="cv-item">
         <div class="cv-header">
-          <div><span class="cv-role">Bachelor of Science – BS, Electrical Engineering</span> • <span class="cv-org">University of California, Riverside</span></div>
+          <div><span class="cv-role">University of California, Riverside</span> • <span class="cv-org">Bachelor of Science – BS, Electrical Engineering</span></div>
           <div class="cv-dates">2024</div>
         </div>
         <ul class="cv-points">
-          <li>Grade: 3.8/4.0</li>
+          <li>Grade: 3.80/4.00</li>
           <li>EE 010 - Introduction to Electrical Engineering</li>
           <li>EE 016 - Data Analysis for Engineering Applications</li>
           <li>EE 020A / MATH 045 - Introduction to Ordinary Differential Equations</li>
@@ -331,18 +331,18 @@ function renderCV() {
 
       <section class="cv-item">
         <div class="cv-header">
-          <div><span class="cv-role">Undergraduate Coursework</span> • <span class="cv-org">West Valley College</span></div>
+          <div><span class="cv-role">West Valley College</span> • <span class="cv-org">Dual Enrollment</span></div>
           <div class="cv-dates">Aug 2022 → Dec 2022</div>
         </div>
         <ul class="cv-points">
-          <li>Grade: 4.0/4.0</li>
+          <li>Grade: 4.00/4.00</li>
           <li>Courses: CIST004A1 Computer Programming I – Java, CIST005A Computer Programming I – Python</li>
         </ul>
       </section>
 
       <section class="cv-item">
         <div class="cv-header">
-          <div><span class="cv-role">Switching Circuits and Logic Design</span> • <span class="cv-org">Indian Institute of Technology, Kharagpur</span></div>
+          <div><span class="cv-role">Indian Institute of Technology, Kharagpur</span> • <span class="cv-org">External Undergraduate Coursework</span></div>
           <div class="cv-dates">Jul 2025</div>
         </div>
         <ul class="cv-points">
