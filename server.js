@@ -61,10 +61,16 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     .section-panel { border: 1px solid var(--border); background: var(--panel); border-radius: 14px; padding: 18px; }
 
     /* Background bokeh for home */
-    .bokeh-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; filter: blur(18px); opacity: 0.45; }
+    .bokeh-canvas { position: fixed; inset: -160px; z-index: 0; pointer-events: none; filter: blur(20px); opacity: 0.55; }
 
-    /* CSS custom cursor (northwest arrow, glossy gradient) */
-    body.use-custom-cursor, body.use-custom-cursor * { cursor: url("data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'><defs><linearGradient id=\'g\' x1=\'0\' y1=\'0\' x2=\'1\' y2=\'1\'><stop offset=\'0%\' stop-color=\'#ffffff\'/><stop offset=\'45%\' stop-color=\'#cfe6ff\'/><stop offset=\'75%\' stop-color=\'#b7b4ff\'/><stop offset=\'100%\' stop-color=\'#93e6ff\'/></linearGradient></defs><g transform=\'translate(1,1)\'><path d=\'M2 2 L18 6 L12 8 L20 20 L16 22 L8 10 L6 16 Z\' fill=\'url(#g)\' stroke=\'#ffffff\' stroke-opacity=\'.8\' stroke-width=\'1\' /><path d=\'M4 3 L18 6 L12 8 L20 20 L16 22 L8 10 L6 16 Z\' fill=\'none\' stroke=\'#000000\' stroke-opacity=\'.35\' stroke-width=\'1\' /></g></svg>')} ") 2 2, auto; }
+    .type-fade-letter { opacity: 0; animation: type-fade .28s ease-out forwards; }
+    @keyframes type-fade { from { opacity: 0; } to { opacity: 1; } }
+
+    /* CSS custom cursor: white glow dot with click pulse */
+    body.use-custom-cursor, body.use-custom-cursor * { cursor: none; }
+    .cursor-dot { position: fixed; left: 0; top: 0; width: 8px; height: 8px; border-radius: 50%; background: #ffffff; box-shadow: 0 0 10px rgba(255,255,255,0.9), 0 0 26px rgba(255,255,255,0.7); pointer-events: none; transform: translate(-50%,-50%) scale(1); transition: transform 80ms ease, opacity 120ms ease; will-change: transform; z-index: 100; mix-blend-mode: screen; }
+    @keyframes cursor-click { 0% { transform: translate(-50%,-50%) scale(1); } 50% { transform: translate(-50%,-50%) scale(1.8); } 100% { transform: translate(-50%,-50%) scale(1); } }
+    .cursor-dot.is-clicking { animation: cursor-click 260ms ease-out; }
 
     @media (max-width: 860px) {
       .hero { grid-template-columns: 1fr; }
@@ -102,21 +108,42 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     (function(){
       var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var coarse = window.matchMedia('(pointer: coarse)').matches;
-      if (!reduce && !coarse) document.body.classList.add('use-custom-cursor');
+      if (!reduce && !coarse) {
+        document.body.classList.add('use-custom-cursor');
+        var dot = document.createElement('div');
+        dot.className = 'cursor-dot';
+        document.body.appendChild(dot);
+        window.addEventListener('mousemove', function(e){
+          dot.style.left = e.clientX + 'px';
+          dot.style.top = e.clientY + 'px';
+        }, { passive: true });
+        window.addEventListener('mousedown', function(){ dot.classList.add('is-clicking'); });
+        dot.addEventListener('animationend', function(){ dot.classList.remove('is-clicking'); });
+      }
     })();
 
     // Typewriter utility
     (function(){
-      function type(el, full, speed){
+      function type(el, full, opts){
         if (!el) return Promise.resolve();
-        el.textContent = '';
+        var o = Object.assign({ startDelay: 160, minDelay: 22, accel: 0.9, fadeMs: 280 }, opts || {});
+        el.innerHTML = '';
         return new Promise(function(resolve){
           var i = 0;
+          var delay = o.startDelay;
           function step(){
+            var span = document.createElement('span');
+            span.className = 'type-fade-letter';
+            span.textContent = full.charAt(i);
+            span.style.animationDuration = o.fadeMs + 'ms';
+            el.appendChild(span);
             i++;
-            el.textContent = full.slice(0, i);
-            if (i < full.length) setTimeout(step, speed);
-            else resolve();
+            if (i < full.length) {
+              delay = Math.max(o.minDelay, delay * o.accel);
+              setTimeout(step, delay);
+            } else {
+              resolve();
+            }
           }
           step();
         });
@@ -127,7 +154,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
         targets.forEach(function(t){
           var txt = t.getAttribute('data-type-text') || t.textContent;
           t.setAttribute('data-type-text', txt);
-          t.addEventListener('click', function(e){ type(t, txt, 16); });
+          t.addEventListener('click', function(e){ type(t, txt); });
         });
         return targets;
       }
@@ -136,20 +163,20 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
       var hero = document.querySelector('.hero-title');
       if (hero) {
         hero.setAttribute('data-type-text', hero.textContent);
-        hero.addEventListener('click', function(){ type(hero, hero.getAttribute('data-type-text'), 12); });
+        hero.addEventListener('click', function(){ type(hero, hero.getAttribute('data-type-text')); });
       }
       var about = document.querySelector('.section-title');
       if (about) {
         about.setAttribute('data-type-text', about.textContent);
-        about.addEventListener('click', function(){ type(about, about.getAttribute('data-type-text'), 12); });
+        about.addEventListener('click', function(){ type(about, about.getAttribute('data-type-text')); });
       }
 
       var first = !sessionStorage.getItem('typed_once');
       if (first) {
         (async function(){
-          for (var i=0;i<all.length;i++) { await type(all[i], all[i].getAttribute('data-type-text'), 12); }
-          if (hero) await type(hero, hero.getAttribute('data-type-text'), 10);
-          if (about) await type(about, about.getAttribute('data-type-text'), 10);
+          for (var i=0;i<all.length;i++) { await type(all[i], all[i].getAttribute('data-type-text')); }
+          if (hero) await type(hero, hero.getAttribute('data-type-text'));
+          if (about) await type(about, about.getAttribute('data-type-text'));
           sessionStorage.setItem('typed_once', '1');
         })();
       }
@@ -195,7 +222,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
           if (b.x < -pad-200 || b.x > window.innerWidth + pad + 200) b.vx *= -1;
           if (b.y < -pad-200 || b.y > window.innerHeight + pad + 200) b.vy *= -1;
           var g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
-          g.addColorStop(0, b.c + 'cc');
+          g.addColorStop(0, b.c + 'e6');
           g.addColorStop(1, b.c + '00');
           ctx.fillStyle = g;
           ctx.beginPath();
