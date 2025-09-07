@@ -30,7 +30,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
   <title>Mahatru Guddamsetty</title>
   <meta name="color-scheme" content="dark light" />
   <style>
-    :root { --bg: #ffffff; --fg: #0b1020; --muted: #4b5563; --accent: #0f62fe; --panel: rgba(15,98,254,0.05); --border: rgba(0,0,0,0.1); }
+    :root { --bg: #0b1020; --fg: #e6eefc; --muted: #9fb0d9; --accent: #3b82f6; --panel: rgba(255,255,255,0.06); --border: rgba(255,255,255,0.12); }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; background: var(--bg); color: var(--fg); }
 
@@ -53,6 +53,14 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     .profile { width: 220px; height: 220px; border-radius: 18px; object-fit: cover; box-shadow: 0 10px 30px rgba(0,0,0,0.35); border: 4px solid var(--panel); }
 
     .section-title { margin: 0 0 12px; font-size: 28px; }
+    /* CV styles */
+    .cv-list { display: grid; gap: 16px; margin-top: 16px; }
+    .cv-item { border: 1px solid var(--border); background: var(--panel); border-radius: 14px; padding: 16px; }
+    .cv-header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 8px; }
+    .cv-role { font-weight: 700; }
+    .cv-org { font-style: italic; color: var(--muted); }
+    .cv-dates { color: var(--muted); white-space: nowrap; }
+    .cv-points { margin: 8px 0 0; padding-left: 20px; }
     .section-panel { border: 1px solid var(--border); background: var(--panel); border-radius: 14px; padding: 18px; }
     .about-panel { margin-top: 28px; }
     .about-panel:hover { background: var(--panel); border-color: var(--border); backdrop-filter: blur(8px) saturate(1.05); -webkit-backdrop-filter: blur(8px) saturate(1.05); box-shadow: 0 8px 24px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.06); }
@@ -268,6 +276,93 @@ function renderHome() {
   return renderTemplate({ activePath: '/', bodyHtml });
 }
 
+function renderCV() {
+  const bodyHtml = `
+  <main class="page">
+    <h1 class="section-title"><span class="type-text" data-type-text=">cv">&gt;cv</span></h1>
+    <div class="cv-list">
+      <section class="cv-item">
+        <div class="cv-header">
+          <div><span class="cv-role">Advanced VLSI Design Trainee</span> • <span class="cv-org">VLSI-G Institute at IIT Kharagpur</span></div>
+          <div class="cv-dates">Jul 2025 – Present · 3 mos</div>
+        </div>
+        <ul class="cv-points">
+          <li>Developing register-transfer level designs in Verilog by applying multiple modeling styles (structural, dataflow, behavioral) for digital subsystems.</li>
+          <li>Designing and verifying synchronous/asynchronous FIFO buffers, SPI/I2C interfaces, interrupt controllers, dual-port RAM, parameterized memory, and watchdog timers.</li>
+          <li>Creating finite state machines and pattern detectors using overlapping, non-overlapping, and dynamic detection methods.</li>
+          <li>Building comprehensive testbenches with clock generation, duty cycle, and jitter variations; conducted simulations in ModelSim and Synopsys VCS.</li>
+          <li>Executing verification workflows with waveform debugging and validation methodologies to ensure functional correctness of complex digital designs.</li>
+          <li>Took CS21002: Switching Circuits and Logic Design through IIT Kharagpur for foundational knowledge.</li>
+        </ul>
+      </section>
+
+      <section class="cv-item">
+        <div class="cv-header">
+          <div><span class="cv-role">Electrical Subsystems Intern</span> • <span class="cv-org">Highlander Racing, University of California, Riverside</span></div>
+          <div class="cv-dates">Jun 2025 – Present · 4 mos</div>
+        </div>
+        <ul class="cv-points">
+          <li>Designed and implemented a high-side switch for inductive loads using IRL540N MOSFET and IRS2005 gate driver, ensuring protection with flyback diodes and optimized switching.</li>
+          <li>Developed proficiency in PCB Design with Altium Designer, including schematic creation, component placement, and bill of materials utilization.</li>
+          <li>Applied PCB layout techniques with proper design rules for signal integrity and clean routing.</li>
+          <li>Integrated component sourcing and supply chain considerations into PCB fabrication workflow.</li>
+        </ul>
+      </section>
+
+      <section class="cv-item">
+        <div class="cv-header">
+          <div><span class="cv-role">Hardware/Software Intern</span> • <span class="cv-org">UCR VexU Robotics (Ursa Mechanica)</span></div>
+          <div class="cv-dates">Jan 2025 – May 2025 · 5 mos</div>
+        </div>
+        <ul class="cv-points">
+          <li>Programmed and developed autonomous functions in C++ for real-time navigation, sensor-based object detection, and game-piece manipulation.</li>
+          <li>Optimized motion control for improved scoring efficiency during competition matches.</li>
+          <li>Earned Second Place at California State University, Northridge: High Stakes VEX V5 Competition against 14 universities.</li>
+          <li>Qualified for and participated in 2025 VEXU World Championships (Dallas, TX), competing against ~50 international universities.</li>
+        </ul>
+      </section>
+
+      <section class="cv-item">
+        <div class="cv-header">
+          <div><span class="cv-role">Machine Learning Researcher</span> • <span class="cv-org">Inspirit AI + X</span></div>
+          <div class="cv-dates">Jul 2023 – Aug 2023 · 2 mos</div>
+        </div>
+        <ul class="cv-points">
+          <li>Published research on using machine learning to improve the accuracy of sentiment analysis on e-commerce reviews under mentorship of an MIT CS Graduate on Curieux Academic Journal (Issue #33).</li>
+          <li>Programmed a refined version of RoBERTa, achieving higher efficiency than lexicon-based approaches.</li>
+          <li>Deployed models in Paperspace using TensorFlow, WandB, PyTorch, and gradient notebooks.</li>
+        </ul>
+      </section>
+
+      <section class="cv-item">
+        <div class="cv-header">
+          <div><span class="cv-role">Mechatronics/Electromechanics Developer</span> • <span class="cv-org">Northwestern University</span></div>
+          <div class="cv-dates">Jul 2023 – Aug 2023 · 2 mos</div>
+        </div>
+        <ul class="cv-points">
+          <li>Built and programmed an autonomous mobile robot with microcontrollers, sensors, actuators, and CAD-designed hardware for movement and block detection.</li>
+          <li>Designed and tested multiple subsystems: control algorithms, sensor data processing, and integrated feedback loops.</li>
+          <li>Produced PCB layouts, wiring diagrams, Fusion 360 design files, and documentation for fabrication and testing.</li>
+        </ul>
+      </section>
+
+      <section class="cv-item">
+        <div class="cv-header">
+          <div><span class="cv-role">Human-Computer Interaction Designer</span> • <span class="cv-org">Stanford University</span></div>
+          <div class="cv-dates">Jun 2023 – Jun 2023 · 1 mo</div>
+        </div>
+        <ul class="cv-points">
+          <li>Wrote multiple papers on HCI topics including user-centered design, prototyping techniques, and usability evaluation.</li>
+          <li>Created low-fidelity and high-fidelity prototypes based on user feedback.</li>
+          <li>Explored applications of HCI in VR/AR, AI, and healthcare/education technologies.</li>
+          <li>Developed a stress management app with a wearable prototype, presenting to a panel of judges.</li>
+        </ul>
+      </section>
+    </div>
+  </main>`;
+  return renderTemplate({ activePath: '/cv', bodyHtml });
+}
+
 function renderSimple(title, path) {
   const bodyHtml = `
   <main class="page">
@@ -288,7 +383,7 @@ app.get('/', (req, res) => {
 
 
 app.get('/cv', (req, res) => {
-  res.type('html').send(renderSimple('>cv', '/cv'));
+  res.type('html').send(renderCV());
 });
 
 
