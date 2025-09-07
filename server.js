@@ -219,6 +219,30 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
       els.forEach(attach);
     })();
 
+    // Moving per-box bokeh glow inside rounded boxes
+    (function(){
+      var COLORS = ['#ff7ab3','#ff9a3c','#ffffff','#ff4d4d','#ffd1a6'];
+      function init(el){
+        var c = document.createElement('canvas');
+        c.className = 'box-bokeh';
+        el.insertBefore(c, el.firstChild);
+        var ctx = c.getContext('2d');
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        function size(){ var w = el.clientWidth, h = el.clientHeight; c.width = Math.floor(w*dpr); c.height = Math.floor(h*dpr); c.style.width = w+'px'; c.style.height = h+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); }
+        size();
+        var ro = new ResizeObserver(size); ro.observe(el);
+        var blobs = [];
+        for (var i=0;i<6;i++) blobs.push({ x: Math.random()*el.clientWidth, y: Math.random()*el.clientHeight, r: 60+Math.random()*110, vx:(Math.random()*2-1)*0.28, vy:(Math.random()*2-1)*0.28, c: COLORS[i%COLORS.length] });
+        function draw(){
+          var w = el.clientWidth, h = el.clientHeight; ctx.clearRect(0,0,w,h); ctx.globalCompositeOperation='lighter';
+          for (var i=0;i<blobs.length;i++){ var b=blobs[i]; b.x+=b.vx; b.y+=b.vy; if (b.x < -40 || b.x > w+40) b.vx*=-1; if (b.y < -40 || b.y > h+40) b.vy*=-1; var g = ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r); g.addColorStop(0, b.c + 'ff'); g.addColorStop(1, b.c + '00'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill(); }
+          requestAnimationFrame(draw);
+        }
+        requestAnimationFrame(draw);
+      }
+      document.querySelectorAll('.section-panel, .cv-item').forEach(init);
+    })();
+
     // Bokeh glowy background across site (pink, orange, red, white)
     (function(){
       var c = document.getElementById('bokeh');
