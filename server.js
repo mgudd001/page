@@ -57,9 +57,9 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     /* Per-box subtle glow */
     .section-panel, .cv-item { position: relative; isolation: isolate; z-index: 1; overflow: hidden; }
     .section-panel::before, .cv-item::before { content: ""; position: absolute; z-index: -1; inset: 0; border-radius: inherit; pointer-events: none; background:
-      radial-gradient(220px 160px at 18% 28%, rgba(255,154,67,0.28), rgba(255,154,67,0) 62%),
-      radial-gradient(200px 160px at 82% 72%, rgba(255,122,179,0.24), rgba(255,122,179,0) 66%),
-      radial-gradient(160px 160px at 50% 50%, rgba(255,255,255,0.12), rgba(255,255,255,0) 60%);
+      radial-gradient(220px 160px at 18% 28%, rgba(255,154,67,0.28), rgba(255,154,67,0) 40%),
+      radial-gradient(200px 160px at 82% 72%, rgba(255,122,179,0.24), rgba(255,122,179,0) 40%),
+      radial-gradient(160px 160px at 50% 50%, rgba(255,255,255,0.12), rgba(255,255,255,0) 40%);
       filter: blur(16px);
       opacity: 1;
     }
