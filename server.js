@@ -180,10 +180,12 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
       var heroSpan = document.querySelector('.hero-title .type-text');
       var heroTyping = false;
       if (heroSpan) {
-        var heroText = heroSpan.getAttribute('data-type-text') || heroSpan.textContent;
+        var heroText = '>MAHATRU GUDDAMSETTY.';
         heroSpan.setAttribute('data-type-text', heroText);
-        heroSpan.addEventListener('mouseenter', function(){ if (heroTyping) return; heroTyping = true; type(heroSpan, heroText).then(function(){ heroTyping = false; }); });
-        heroSpan.addEventListener('click', function(){ if (heroTyping) return; heroTyping = true; type(heroSpan, heroText).then(function(){ heroTyping = false; }); });
+        heroSpan.textContent = heroText;
+        function retrigger(){ if (heroTyping) return; heroTyping = true; type(heroSpan, heroText).then(function(){ heroTyping = false; }); }
+        heroSpan.addEventListener('mouseenter', retrigger);
+        heroSpan.addEventListener('click', retrigger);
       }
       var about = document.querySelector('.section-title');
       if (about) {
