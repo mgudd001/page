@@ -89,7 +89,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     .primary-nav .nav-link:hover::before { opacity: 1; }
 
     /* Background bokeh for home */
-    .bokeh-canvas { position: fixed; inset: -800px; z-index: 0; pointer-events: none; filter: blur(40px); opacity: 0.4; }
+    .bokeh-canvas { display: none !important; }
 
     .type-fade-letter { opacity: 0; animation: type-fade .28s ease-out forwards; }
     @keyframes type-fade { from { opacity: 0; } to { opacity: 1; } }
