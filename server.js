@@ -252,7 +252,7 @@ function renderHome() {
     <main class="page">
       <section class="hero">
         <div>
-          <h1 class="hero-title"><span class="type-text" data-type-text=">MAHATRU GUDDAMSETTY">&gt;MAHATRU GUDDAMSETTY</span></h1>
+          <h1 class="hero-title"><span class="type-text" data-type-text=">MAHATRU GUDDAMSETTY.">&gt;MAHATRU GUDDAMSETTY.</span></h1>
           <p class="hero-lead">Welcome to my website.</p>
         </div>
         <div class="profile-wrap">
