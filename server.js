@@ -30,7 +30,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
   <title>Mahatru Guddamsetty</title>
   <meta name="color-scheme" content="dark light" />
   <style>
-    :root { --bg: #0a0a0a; --fg: #e8eefc; --muted: #a9b8d6; --accent: #3b82f6; --panel: rgba(255,255,255,0.08); --border: rgba(255,255,255,0.16); }
+    :root { --bg: #000000; --fg: #e8eefc; --muted: #a9b8d6; --accent: #3b82f6; --panel: rgba(255,255,255,0.08); --border: rgba(255,255,255,0.16); }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; background: var(--bg); color: var(--fg); }
 
@@ -55,13 +55,13 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     .section-title { margin: 0 0 12px; font-size: 28px; }
     .group-header { margin: 28px 0 8px; font-size: 22px; font-weight: 700; color: var(--fg); opacity: 0.9; }
     /* Per-box subtle glow */
-    .section-panel, .cv-item { position: relative; isolation: isolate; z-index: 1; }
-    .section-panel::before, .cv-item::before { content: ""; position: absolute; z-index: -1; inset: -18px; border-radius: inherit; pointer-events: none; background:
-      radial-gradient(180px 120px at 20% 30%, rgba(255,154,67,0.18), rgba(255,154,67,0) 60%),
-      radial-gradient(160px 140px at 80% 70%, rgba(255,122,179,0.16), rgba(255,122,179,0) 65%),
-      radial-gradient(140px 140px at 50% 50%, rgba(255,255,255,0.10), rgba(255,255,255,0) 60%);
-      filter: blur(22px);
-      opacity: .9;
+    .section-panel, .cv-item { position: relative; isolation: isolate; z-index: 1; overflow: hidden; }
+    .section-panel::before, .cv-item::before { content: ""; position: absolute; z-index: -1; inset: 0; border-radius: inherit; pointer-events: none; background:
+      radial-gradient(220px 160px at 18% 28%, rgba(255,154,67,0.28), rgba(255,154,67,0) 62%),
+      radial-gradient(200px 160px at 82% 72%, rgba(255,122,179,0.24), rgba(255,122,179,0) 66%),
+      radial-gradient(160px 160px at 50% 50%, rgba(255,255,255,0.16), rgba(255,255,255,0) 60%);
+      filter: blur(16px);
+      opacity: 1;
     }
     .cv-list { display: grid; gap: 16px; margin-top: 16px; }
     .cv-item { border: 1px solid var(--border); background: var(--panel); border-radius: 14px; padding: 16px; }
@@ -176,11 +176,13 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
       }
 
       var all = setupTypeTargets(document);
-      var hero = document.querySelector('.hero-title');
-      if (hero) {
-        hero.setAttribute('data-type-text', hero.textContent);
-        hero.addEventListener('click', function(){ type(hero, hero.getAttribute('data-type-text')); });
-        hero.addEventListener('mouseenter', function(){ type(hero, hero.getAttribute('data-type-text')); });
+      var heroSpan = document.querySelector('.hero-title .type-text');
+      var heroTyping = false;
+      if (heroSpan) {
+        var heroText = heroSpan.getAttribute('data-type-text') || heroSpan.textContent;
+        heroSpan.setAttribute('data-type-text', heroText);
+        heroSpan.addEventListener('mouseenter', function(){ if (heroTyping) return; heroTyping = true; type(heroSpan, heroText).then(function(){ heroTyping = false; }); });
+        heroSpan.addEventListener('click', function(){ if (heroTyping) return; heroTyping = true; type(heroSpan, heroText).then(function(){ heroTyping = false; }); });
       }
       var about = document.querySelector('.section-title');
       if (about) {
@@ -192,7 +194,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
       if (first) {
         (async function(){
           for (var i=0;i<all.length;i++) { await type(all[i], all[i].getAttribute('data-type-text')); }
-          if (hero) await type(hero, hero.getAttribute('data-type-text'));
+          if (heroSpan) await type(heroSpan, heroSpan.getAttribute('data-type-text'));
           if (about) await type(about, about.getAttribute('data-type-text'));
           sessionStorage.setItem('typed_once', '1');
         })();
@@ -308,14 +310,29 @@ function renderCV() {
         </div>
         <ul class="cv-points">
           <li>Grade: 3.8/4.0</li>
-          <li>Courses: EE 010 - Introduction to Electrical Engineering, EE 016 - Data Analysis for Engineering Applications, EE 020A / MATH 045 - Introduction to Ordinary Differential Equations, EE 020B / MATH 031 - Linear Algebra + MATLAB, EE 030A, EE 030LA - Fundamental Electric Circuits I and Lab, CS 010A - C++ Programming I, CS 010B - C++ Programming II, CS 061 - Machine Organization and Assembly Language Programming, MATH 009B - Calculus II (Integral), MATH 009C - Calculus II (Series, Sequences, Parametrics), MATH 010A - Multivariable Calculus III, MATH 010B - Multivariable Calculus III, PHYS 040A, PHYS 040LA - General Physics I and Lab (Mechanics), PHYS 040B, PHYS 040LB - General Physics II and Lab (Thermodynamics), PHYS 040C, PHYS 040LC - General Physics III and Lab (Electricity and Magnetism), CHEM 001A, CHEM 001LA - General Chemistry I and Lab</li>
+          <li>EE 010 - Introduction to Electrical Engineering</li>
+          <li>EE 016 - Data Analysis for Engineering Applications</li>
+          <li>EE 020A / MATH 045 - Introduction to Ordinary Differential Equations</li>
+          <li>EE 020B / MATH 031 - Linear Algebra + MATLAB</li>
+          <li>EE 030A, EE 030LA - Fundamental Electric Circuits I and Lab</li>
+          <li>CS 010A - C++ Programming I</li>
+          <li>CS 010B - C++ Programming II</li>
+          <li>CS 061 - Machine Organization and Assembly Language Programming</li>
+          <li>MATH 009B - Calculus II (Integral)</li>
+          <li>MATH 009C - Calculus II (Series, Sequences, Parametrics)</li>
+          <li>MATH 010A - Multivariable Calculus III</li>
+          <li>MATH 010B - Multivariable Calculus III</li>
+          <li>PHYS 040A, PHYS 040LA - General Physics I and Lab (Mechanics)</li>
+          <li>PHYS 040B, PHYS 040LB - General Physics II and Lab (Thermodynamics)</li>
+          <li>PHYS 040C, PHYS 040LC - General Physics III and Lab (Electricity and Magnetism)</li>
+          <li>CHEM 001A, CHEM 001LA - General Chemistry I and Lab</li>
         </ul>
       </section>
 
       <section class="cv-item">
         <div class="cv-header">
           <div><span class="cv-role">Undergraduate Coursework</span> • <span class="cv-org">West Valley College</span></div>
-          <div class="cv-dates">Aug 2022 – Dec 2022</div>
+          <div class="cv-dates">Aug 2022 → Dec 2022</div>
         </div>
         <ul class="cv-points">
           <li>Grade: 4.0/4.0</li>
@@ -339,7 +356,7 @@ function renderCV() {
       <section class="cv-item">
         <div class="cv-header">
           <div><span class="cv-role">Advanced VLSI Design Trainee</span> • <span class="cv-org">VLSI-G Institute at IIT Kharagpur</span></div>
-          <div class="cv-dates">Jul 2025 – Present</div>
+          <div class="cv-dates">Jul 2025 → Present</div>
         </div>
         <ul class="cv-points">
           <li>Developing register-transfer level designs in Verilog by applying multiple modeling styles (structural, dataflow, behavioral) for digital subsystems.</li>
@@ -354,7 +371,7 @@ function renderCV() {
       <section class="cv-item">
         <div class="cv-header">
           <div><span class="cv-role">Electrical Subsystems Intern</span> • <span class="cv-org">Highlander Racing, University of California, Riverside</span></div>
-          <div class="cv-dates">Jun 2025 – Present</div>
+          <div class="cv-dates">Jun 2025 → Present</div>
         </div>
         <ul class="cv-points">
           <li>Designed and implemented a high-side switch for inductive loads using IRL540N MOSFET and IRS2005 gate driver, ensuring protection with flyback diodes and optimized switching.</li>
@@ -367,7 +384,7 @@ function renderCV() {
       <section class="cv-item">
         <div class="cv-header">
           <div><span class="cv-role">Hardware/Software Intern</span> • <span class="cv-org">UCR VexU Robotics (Ursa Mechanica)</span></div>
-          <div class="cv-dates">Jan 2025 – May 2025</div>
+          <div class="cv-dates">Jan 2025 → May 2025</div>
         </div>
         <ul class="cv-points">
           <li>Programmed and developed autonomous functions in C++ for real-time navigation, sensor-based object detection, and game-piece manipulation.</li>
@@ -380,7 +397,7 @@ function renderCV() {
       <section class="cv-item">
         <div class="cv-header">
           <div><span class="cv-role">Machine Learning Researcher</span> • <span class="cv-org">Inspirit AI + X</span></div>
-          <div class="cv-dates">Jul 2023 – Aug 2023</div>
+          <div class="cv-dates">Jul 2023 → Aug 2023</div>
         </div>
         <ul class="cv-points">
           <li>Published research on using machine learning to improve the accuracy of sentiment analysis on e-commerce reviews under mentorship of an MIT CS Graduate on Curieux Academic Journal (Issue #33).</li>
@@ -392,7 +409,7 @@ function renderCV() {
       <section class="cv-item">
         <div class="cv-header">
           <div><span class="cv-role">Mechatronics/Electromechanics Developer</span> • <span class="cv-org">Northwestern University</span></div>
-          <div class="cv-dates">Jul 2023 – Aug 2023</div>
+          <div class="cv-dates">Jul 2023 → Aug 2023</div>
         </div>
         <ul class="cv-points">
           <li>Built and programmed an autonomous mobile robot with microcontrollers, sensors, actuators, and CAD-designed hardware for movement and block detection.</li>
@@ -404,7 +421,7 @@ function renderCV() {
       <section class="cv-item">
         <div class="cv-header">
           <div><span class="cv-role">Human-Computer Interaction Designer</span> • <span class="cv-org">Stanford University</span></div>
-          <div class="cv-dates">Jun 2023 – Jun 2023</div>
+          <div class="cv-dates">Jun 2023 → Jun 2023</div>
         </div>
         <ul class="cv-points">
           <li>Wrote multiple papers on HCI topics including user-centered design, prototyping techniques, and usability evaluation.</li>
