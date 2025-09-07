@@ -64,7 +64,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
     .primary-nav .nav-link:hover::before { opacity: 1; }
 
     /* Background bokeh for home */
-    .bokeh-canvas { position: fixed; inset: -260px; z-index: 0; pointer-events: none; filter: blur(30px); opacity: 0.85; }
+    .bokeh-canvas { position: fixed; inset: -800px; z-index: 0; pointer-events: none; filter: blur(40px); opacity: 0.85; }
 
     .type-fade-letter { opacity: 0; animation: type-fade .28s ease-out forwards; }
     @keyframes type-fade { from { opacity: 0; } to { opacity: 1; } }
@@ -196,7 +196,7 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
       if (!c) return;
       var ctx = c.getContext('2d');
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
-      var pad = 260;
+      var pad = 800;
       function resize(){
         var w = window.innerWidth, h = window.innerHeight;
         c.width = Math.floor((w + pad*2) * dpr);
@@ -227,8 +227,8 @@ function renderTemplate({ activePath = '/', bodyHtml = '' }) {
         for (var i=0;i<blobs.length;i++){
           var b = blobs[i];
           b.x += b.vx; b.y += b.vy;
-          if (b.x < -pad-250 || b.x > window.innerWidth + pad + 250) b.vx *= -1;
-          if (b.y < -pad-250 || b.y > window.innerHeight + pad + 250) b.vy *= -1;
+          if (b.x < -pad-350 || b.x > window.innerWidth + pad + 350) b.vx *= -1;
+          if (b.y < -pad-350 || b.y > window.innerHeight + pad + 350) b.vy *= -1;
           var g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
           g.addColorStop(0, b.c + 'ff');
           g.addColorStop(1, b.c + '00');
